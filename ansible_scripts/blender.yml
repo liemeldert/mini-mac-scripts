@@ -1,0 +1,27 @@
+---
+- name: Install Blender
+  hosts: macs
+  become: yes
+
+  tasks:
+  - name: Download Blender
+    get_url:
+      url: "https://download.blender.org/release/Blender{{ blender_version }}/blender-{{ blender_version }}-macOS-x64.dmg"
+      dest: "/tmp/blender.dmg"
+
+  - name: Mount Blender disk image
+    command: hdiutil attach /tmp/blender.dmg
+
+  - name: Install Blender
+    command: cp -R "/Volumes/Blender/Blender.app" "/Applications/"
+
+  - name: Unmount Blender disk image
+    command: hdiutil detach "/Volumes/Blender"
+
+  - name: Clean up temporary files
+    file:
+      path: "/tmp/blender.dmg"
+      state: absent
+
+  vars:
+    blender_version: "2.93.5"

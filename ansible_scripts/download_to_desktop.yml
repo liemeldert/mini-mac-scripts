@@ -1,0 +1,35 @@
+---
+- name: Download and decompress file
+  hosts: macs
+  become: yes
+
+  vars:
+    download_url: ""
+    file_name: "file.zip"
+    file_path: "/tmp/{{ file_name }}"
+    destination_folder: "/Users/*/Desktop"
+
+  tasks:
+  - name: Download file
+    get_url:
+      url: "{{ download_url }}"
+      dest: "{{ file_path }}"
+
+  - name: Decompress file
+    unarchive:
+      src: "{{ file_path }}"
+      dest: "/tmp/"
+      remote_src: yes
+      copy: no
+      creates: "/tmp/{{ file_name | basename | splitext | first }}"
+
+  - name: Copy file to user desktops
+    copy:
+      src: "/tmp/{{ file_name | basename | splitext | first }}"
+      dest: "{{ destination_folder }}"
+      mode: 0644
+
+  - name: Remove temporary files
+    file:
+      path: "{{ file_path }}, /tmp/{{ file_name | basename }}"
+      state: absent
