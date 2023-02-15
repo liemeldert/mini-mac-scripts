@@ -1,0 +1,35 @@
+---
+- name: Reset lab settings to default, retain data.
+  hosts: macs
+  become: yes
+
+  tasks:
+  - name: Reset Dock to default
+    shell: defaults delete com.apple.dock; killall Dock
+    ignore_errors: yes
+
+  - name: Reset Finder to default
+    shell: defaults delete com.apple.finder; killall Finder
+    ignore_errors: yes
+
+  - name: Reset Safari to default
+    shell: defaults delete com.apple.Safari; killall Safari
+    ignore_errors: yes
+
+  - name: Sign out of Creative Cloud
+    shell: "/Applications/Utilities/Adobe Creative Cloud/ACC/Creative Cloud.app/Contents/MacOS/Creative Cloud --signout"
+
+  - name: Reset Chrome settings
+    shell: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --disable-extensions --disable-plugins --no-sandbox --no-first-run --delete-profile --user-data-dir=/tmp/chrome"
+    ignore_errors: yes
+
+  - name: Reset Firefox settings
+    shell: "/Applications/Firefox.app/Contents/MacOS/firefox-bin -new-instance -P reset -no-remote"
+    ignore_errors: yes
+
+  - name: Reset Adobe app settings
+    command: "/usr/bin/find ~/Library/Application\ Support/Adobe -name \"*\" -type d -exec /bin/bash -c 'mv \"$1\" \"${1}_old\" && mkdir \"$1\" && chmod 777 \"$1\"' -- {} \\; && /usr/bin/find ~/Library/Preferences/Adobe -name \"*\" -type f -delete && /usr/bin/find ~/Library/Caches/Adobe -name \"*\" -type f -delete"
+
+  - name: Restart Creative Cloud app
+    shell: "/Applications/Utilities/Adobe Creative Cloud/ACC/Creative Cloud.app/Contents/MacOS/Creative Cloud &"
+
